@@ -137,7 +137,7 @@ class AIHealthChatView(APIView):
             
             **User Question:** {user_question}
             Provide a professional medical response to the question, considering the user's health profile.
-            just provide only the answer for the question keep it concise in 20-25 words
+            just provide only the answer for the question keep it concise in 20-25 words* keep it under 20-25 words mainly
             """
 
             payload = {
