@@ -9,4 +9,4 @@ class UserSerializer(serializers.ModelSerializer):
 class DynamicDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DynamicData
-        fields = '__all__'
+        exclude = ['user',]
