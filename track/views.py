@@ -28,7 +28,7 @@ class DailyConsumptionListCreateView(generics.ListCreateAPIView):
     authentication_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return DailyConsumption.objects.filter(user=self.request.user).order_by('-date')
+        return DailyConsumption.objects.filter(user=self.request.user, date=now().date())
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
