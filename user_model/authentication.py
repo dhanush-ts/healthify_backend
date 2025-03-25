@@ -33,6 +33,5 @@ def generate_token(user):
     exp_date = datetime.now() + timezone.timedelta(days=365)
     return jwt.encode({
         'id': user.id,
-        'user_type': user.user_type,
         'exp': exp_date.timestamp()
     }, settings.SECRET_KEY, algorithm='HS256')
