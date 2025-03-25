@@ -127,3 +127,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GENAI_API_KEY = "AIzaSyCxZ1CyoUsgVvsHR7TrGOedCJ3RLjT4HsI"  # Replace with your Gemini API Key
 genai.configure(api_key=GENAI_API_KEY)
+
+GEN_AI_KEY = "gemini-2.0-flash"
