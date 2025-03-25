@@ -10,6 +10,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 import re
 import PyPDF2
 from django.http import JsonResponse
+from datetime import datetime, date
 
 class TrackableItemListCreateView(generics.ListCreateAPIView):
     """
@@ -32,7 +33,7 @@ class DailyConsumptionListCreateView(generics.ListCreateAPIView):
     - POST: If an entry for track_type exists on the same date, update it instead of creating a new one.
     """
     serializer_class = DailyConsumptionSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """Retrieve today's consumption records for the authenticated user."""
@@ -85,6 +86,19 @@ class WeeklyConsumptionView(generics.ListAPIView):
         start_of_week = today - timedelta(days=today.weekday())  # Monday of the current week
         return DailyConsumption.objects.filter(user=user, date__gte=start_of_week).order_by('-date')
 
+def parse_date(date_string):
+    """Parses date in MM/DD/YYYY or similar formats and returns YYYY-MM-DD."""
+    date_formats = ["%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y", "%Y-%m-%d", "%B %d, %Y"]
+
+    for fmt in date_formats:
+        try:
+            return datetime.strptime(date_string, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+ # Handle invalid date formats gracefully
+    
+    return None  # Return None if parsing fails
+
 class ExtractMedicalReportView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -133,6 +147,8 @@ class ExtractMedicalReportView(APIView):
         extracted_data = {}
         for key, pattern in patterns.items():
             match = re.search(pattern, text, re.IGNORECASE)
-            extracted_data[key] = match.group(1).strip() if match else None
+            extracted_data[key] = (
+    parse_date(match.group(1).strip()) if "dob" in key.lower() else match.group(1).strip()
+) if match else None
 
         return extracted_data
