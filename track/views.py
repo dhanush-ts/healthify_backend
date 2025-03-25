@@ -1,49 +1,48 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import generics
 from user_model.authentication import IsAuthenticated
-from .models import DailyConsumption
-from datetime import timedelta
-from .serializer import DailyConsumptionSerializer
 from django.utils.timezone import now
+from .models import TrackableItem, DailyConsumption
+from .serializer import TrackableItemSerializer, DailyConsumptionSerializer
+from datetime import timedelta
 
-class DailyConsumptionView(APIView):
+
+class TrackableItemListCreateView(generics.ListCreateAPIView):
+    """
+    Users can create and list their trackable items (e.g., Cigarettes, Alcohol, Coffee).
+    """
+    serializer_class = TrackableItemSerializer
     authentication_classes = [IsAuthenticated]
 
-    def get(self, request):
-        """Fetches the logged-in user's daily consumption."""
-        user = request.user
-        today = now().date()
-        consumption, created = DailyConsumption.objects.get_or_create(user=user, date=today)  # Default to 0 if no data exists
+    def get_queryset(self):
+        return TrackableItem.objects.filter(user=self.request.user)
 
-        serializer = DailyConsumptionSerializer(consumption)
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-    def post(self, request):
-        """Updates the user's daily consumption."""
-        user = request.user
-        today = now().date()
 
-        consumption, created = DailyConsumption.objects.get_or_create(user=user, date=today)
-        serializer = DailyConsumptionSerializer(consumption, data=request.data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-
-class WeeklyConsumption(APIView):
+class DailyConsumptionListCreateView(generics.ListCreateAPIView):
+    """
+    Users can log their daily consumption and retrieve their consumption history.
+    """
+    serializer_class = DailyConsumptionSerializer
     authentication_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
+    def get_queryset(self):
+        return DailyConsumption.objects.filter(user=self.request.user).order_by('-date')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class WeeklyConsumptionView(generics.ListAPIView):
+    """
+    Retrieves the logged-in user's weekly consumption.
+    """
+    serializer_class = DailyConsumptionSerializer
+    authentication_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
         today = now().date()
-        start_date = today - timedelta(days=today.weekday())  # Monday of the current week
-        end_date = start_date + timedelta(days=6)  # Sunday of the current week
-
-        weekly_consumption = DailyConsumption.objects.filter(
-            user=user,
-            date__range=[start_date, end_date]
-        )
-
-        serializer = DailyConsumptionSerializer(weekly_consumption, many=True)
-        return Response({"consumption": serializer.data})
+        start_of_week = today - timedelta(days=today.weekday())  # Monday of the current week
+        return DailyConsumption.objects.filter(user=user, date__gte=start_of_week).order_by('-date')

@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import DailyConsumptionView, WeeklyConsumption
+from .views import TrackableItemListCreateView, DailyConsumptionListCreateView, WeeklyConsumptionView
 
 urlpatterns = [
-    path('daily-consumption/', DailyConsumptionView.as_view(), name='consumption-daily'),
-    path('weekly-consumption/', WeeklyConsumption.as_view(), name='consumption-weekly'),
+    path('trackable-items/', TrackableItemListCreateView.as_view(), name="trackable-items"),
+    path('daily-consumption/', DailyConsumptionListCreateView.as_view(), name="daily-consumption"),
+    path('weekly-consumption/', WeeklyConsumptionView.as_view(), name="weekly-consumption"),
 ]
