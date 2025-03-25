@@ -1,12 +1,7 @@
 from rest_framework import serializers
-from .models import User, DynamicData
+from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-
-class DynamicDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DynamicData
-        exclude = ['user',]

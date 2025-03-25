@@ -1,6 +1,6 @@
 from rest_framework import generics
-from .models import User, DynamicData
-from .serializer import UserSerializer, DynamicDataSerializer
+from .models import User
+from .serializer import UserSerializer
 from .authentication import IsAuthenticated, generate_token
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -33,21 +33,6 @@ class LoginView(APIView):
         
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
-class DynamicDataView(generics.CreateAPIView):
-    authentication_classes = [IsAuthenticated]
-    queryset = DynamicData.objects.all()
-    serializer_class = DynamicDataSerializer
-
-    def perform_create(self, serializer):
-        DynamicData.objects.filter(user=self.request.user).delete()
-        serializer.save(user=self.request.user)
-    
-class DynamicDataUpdateView(generics.RetrieveUpdateDestroyAPIView):
-    authentication_classes = [IsAuthenticated]
-    queryset = DynamicData.objects.all()
-    serializer_class = DynamicDataSerializer
-    lookup_field = 'id'
-    
 class AIHealthEvaluationView(APIView):
     authentication_classes = [IsAuthenticated]
 
@@ -56,12 +41,14 @@ class AIHealthEvaluationView(APIView):
 
         try:
             user_data = User.objects.get(id=user.id)
-            dynamic_data = DynamicData.objects.filter(user=user).first() 
-
-            if not dynamic_data:
-                return Response({"error": "No dynamic data found for the user"}, status=400)
 
             prompt_text = f"""
+            Act as a doctor and give as if you are generating a medical report for the person and again dont add unwanted 
+            the personal information in the response like name city etc and in the response dont give as md it should be humanized and 
+            and it should be professionally user friendly 
+            
+            just give the output directly dont say like Okay, let's put together a health report based on the information provided. Here's what I've got it shouldnt be like a api request
+            
             Generate a structured health report and recommendations based on the following details:
 
             1. **Personal Information:**
@@ -73,13 +60,13 @@ class AIHealthEvaluationView(APIView):
                - City: {user_data.city}
 
             2. **Lifestyle Factors:**
-               - Smoking: {dynamic_data.smoking}
-               - Drinking: {dynamic_data.drinking}
-               - Sleeping Hours: {dynamic_data.sleeping_hours}
-               - Exercise Hours: {dynamic_data.exercise_hours}
+               - Smoking: {user_data.smoking}
+               - Drinking: {user_data.drinking}
+               - Sleeping Hours: {user_data.sleeping_hours}
+               - Exercise Hours: {user_data.exercise_hours}
 
             3. **Medical History:**
-               - {dynamic_data.medical_history}
+               - {user_data.medical_history}
 
             Generate a structured health report with:
             - Overall health analysis (word count: 50)

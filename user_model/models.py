@@ -10,18 +10,10 @@ class User(models.Model):
     weight = models.CharField(max_length=10)  # Example: "70 kg"
     city = models.CharField(max_length=255)
     medical_history = models.TextField(blank=True, null=True)
-    genetic_predisposition = models.TextField(blank=True, null=True)  
-
-    def __str__(self):
-        return self.full_name
-    
-class DynamicData(models.Model):
-    user = models.ForeignKey(User, related_name="static_data", on_delete=models.CASCADE)
+    genetic_predisposition = models.TextField(blank=True, null=True)
     smoking = models.TextField(blank=True, null=True)
     drinking = models.TextField(blank=True, null=True)
     sleeping_hours = models.TextField(blank=True, null=True)
     exercise_hours = models.TextField(blank=True, null=True)
-    medical_history = models.TextField(blank=True, null=True)  
-    
     def __str__(self):
-        return f"Dynamic Data of user {self.user.full_name}"
+        return self.full_name
