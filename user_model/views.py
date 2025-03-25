@@ -10,7 +10,7 @@ class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class UserUpdateView(generics.UpdateAPIView):
+class UserUpdateView(generics.RetrieveUpdateAPIView):
     authentication_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -42,3 +42,4 @@ class DynamicDataUpdateView(generics.RetrieveUpdateDestroyAPIView):
     queryset = DynamicData.objects.all()
     serializer_class = DynamicDataSerializer
     lookup_field = 'id'
+    
