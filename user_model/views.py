@@ -1,6 +1,6 @@
 from rest_framework import generics
-from .models import User
-from .serializer import UserSerializer
+from .models import User, DynamicData
+from .serializer import UserSerializer, DynamicDataSerializer
 from .authentication import IsAuthenticated, generate_token
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,3 +31,14 @@ class LoginView(APIView):
             return Response({'token': token}, status=status.HTTP_200_OK)
         
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+class DynamicDataView(generics.CreateAPIView):
+    authentication_classes = [IsAuthenticated]
+    queryset = DynamicData.objects.all()
+    serializer_class = DynamicDataSerializer
+    
+class DynamicDataUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [IsAuthenticated]
+    queryset = DynamicData.objects.all()
+    serializer_class = DynamicDataSerializer
+    lookup_field = 'id'

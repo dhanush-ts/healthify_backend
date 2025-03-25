@@ -14,3 +14,14 @@ class User(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+class DynamicData(models.Model):
+    user = models.ForeignKey(User, related_name="static_data", on_delete=models.CASCADE)
+    smoking = models.TextField(blank=True, null=True)
+    drinking = models.TextField(blank=True, null=True)
+    sleeping_hours = models.TextField(blank=True, null=True)
+    exercise_hours = models.TextField(blank=True, null=True)
+    medical_history = models.TextField(blank=True, null=True)  
+    
+    def __str__(self):
+        return f"Dynamic Data of user {self.user.full_name}"
