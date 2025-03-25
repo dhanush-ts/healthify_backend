@@ -76,6 +76,7 @@ class AIHealthEvaluationView(APIView):
             - Major risk factors (word count: 20)
             - Personalized preventive recommendations (word count: 50)
             - Future health risk prediction (word count: 30)
+            - Preventive measures (word count: 50)
             
             if they have any bad habits tell few advices to follow to stop them in a favaroble way
             """

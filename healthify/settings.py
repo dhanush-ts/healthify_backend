@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     'user_model',
     'rest_framework',
+    'track',
 ]
 
 MIDDLEWARE = [
