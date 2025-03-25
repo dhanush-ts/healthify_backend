@@ -56,11 +56,11 @@ class DailyConsumptionListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         """Allow updating the same day's records instead of creating new ones."""
         today = now().date()
-        track_type = self.request.data.get("track_type")
+        track_item = self.request.data.get("track_item")
 
         # Check if an entry already exists for the user, track_type, and today
         existing_entry = DailyConsumption.objects.filter(
-            user=self.request.user, date=today, track_type=track_type
+            user=self.request.user, date=today, track_item=track_item
         ).first()
 
         if existing_entry:
