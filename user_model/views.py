@@ -95,3 +95,64 @@ class AIHealthEvaluationView(APIView):
             return Response({"error": "User not found"}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+class AIHealthChatView(APIView):
+    authentication_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user  
+        user_question = request.data.get("question", "")
+
+        try:
+            user_data = User.objects.get(id=user.id)
+            
+            prompt_text = f"""
+            without including unnecessary personal information.
+            Ensure the response is humanized, professional, and user-friendly. Do not mention AI in the response. Instead, write as a real doctor would.
+            
+            **Health Evaluation Based on Provided Data:**
+            
+            1. **Personal Information (DO NOT INCLUDE IN RESPONSE):**
+               - Name: {user_data.full_name}
+               - Age: {user_data.dob}
+               - Gender: {user_data.gender}
+               - Height: {user_data.height}
+               - Weight: {user_data.weight}
+               - City: {user_data.city}
+               
+            2. **Lifestyle Factors:**
+               - Smoking: {user_data.smoking}
+               - Drinking: {user_data.drinking}
+               - Sleeping Hours: {user_data.sleeping_hours}
+               - Exercise Hours: {user_data.exercise_hours}
+
+            3. **Medical History:**
+               - {user_data.medical_history}
+
+            **Generate a structured health report with:**
+            - Overall health analysis (50 words)
+            - Major risk factors (20 words)
+            - Personalized preventive recommendations (50 words)
+            - Future health risk prediction (30 words)
+            
+            **User Question:** {user_question}
+            Provide a professional medical response to the question, considering the user's health profile.
+            just provide only the answer for the question keep it concise in 20-25 words
+            """
+
+            payload = {
+                "contents": [{
+                    "parts": [{"text": prompt_text}]
+                }]
+            }
+
+            model = genai.GenerativeModel(settings.GEN_AI_KEY)
+            response = model.generate_content(prompt_text)
+
+            return Response({"health_report": response.text}, status=200)
+        
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
